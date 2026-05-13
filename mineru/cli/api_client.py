@@ -1038,6 +1038,7 @@ async def download_result_zip(
 
 
 def safe_extract_zip(zip_path: Path, output_dir: Path, relative_path:str) -> None:
+    #MODIFIED by Yilin: use relative path to make the nesting folders
     rp :Path = Path(relative_path)
     pp = rp.parent
     output_dir = output_dir / pp
