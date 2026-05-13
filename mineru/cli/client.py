@@ -501,6 +501,10 @@ def collect_input_documents(
         documents = [path for path in sorted(input_path.rglob("*")) if path.is_file()]
     else:
         documents = [input_path]
+    #MODIFIED: by Yilin
+    #print("documents:",end='\n')
+    #print(documents,end='\n')
+    print('--------------------------------------------------------------------------------',end='\n')
 
     collected: list[InputDocument] = []
     for order, path in enumerate(documents):
@@ -516,7 +520,8 @@ def collect_input_documents(
             )
         else:
             effective_pages = 1
-
+        #MODIFIED: by Yilin
+        print(path,end='\n')
         collected.append(
             InputDocument(
                 path=path,
@@ -526,6 +531,8 @@ def collect_input_documents(
                 order=order,
             )
         )
+    print('--------------------------------------------------------------------------------',end='\n')
+    print('Found '+str(len(collected))+' input documents',end='\n')
 
     if not collected:
         raise click.ClickException(f"No supported documents found under {input_path}")
