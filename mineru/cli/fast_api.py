@@ -164,6 +164,7 @@ class StoredUpload:
     original_name: str
     stem: str
     path: str
+#    original_path : str
 
 
 @dataclass

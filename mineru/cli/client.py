@@ -54,7 +54,7 @@ class InputDocument:
     stem: str
     effective_pages: int
     order: int
-
+    relative_path: str
 
 @dataclass
 class PlannedTask:
@@ -525,6 +525,7 @@ def collect_input_documents(
         collected.append(
             InputDocument(
                 path=path,
+                relative_path=str(path)[len(str(input_path))+1:],
                 suffix=suffix,
                 stem=path.stem,
                 effective_pages=effective_pages,
@@ -552,6 +553,7 @@ def collect_input_documents(
         return [
             InputDocument(
                 path=document.path,
+                relative_path=str(document.path)[len(str(input_path)) + 1:],
                 suffix=document.suffix,
                 stem=effective_stem,
                 effective_pages=document.effective_pages,
@@ -708,8 +710,8 @@ async def download_result_zip(
     )
 
 
-def safe_extract_zip(zip_path: Path, output_dir: Path) -> None:
-    _api_client.safe_extract_zip(zip_path, output_dir)
+def safe_extract_zip(zip_path: Path, output_dir: Path, relative_path : str) -> None:
+    _api_client.safe_extract_zip(zip_path, output_dir, relative_path)
 
 
 def resolve_submit_concurrency(max_concurrent_requests: int, task_count: int) -> int:
@@ -807,7 +809,7 @@ async def run_planned_task(
         planned_task=planned_task,
     )
     try:
-        safe_extract_zip(zip_path, output_dir)
+        safe_extract_zip(zip_path, output_dir, planned_task.documents[0].relative_path)
     finally:
         zip_path.unlink(missing_ok=True)
     completed_tasks, completed_pages = await mark_task_completed(

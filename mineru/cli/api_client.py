@@ -440,7 +440,6 @@ class UploadAsset:
     path: Path
     upload_name: str
 
-
 @dataclass(frozen=True)
 class ServerHealth:
     base_url: str
@@ -872,6 +871,7 @@ def submit_parse_task_sync(
                         or "application/octet-stream"
                     )
                     file_handle = stack.enter_context(open(upload_asset.path, "rb"))
+                    realpath : str = str(upload_asset.path)
                     files.append(
                         (
                             "files",
@@ -879,6 +879,9 @@ def submit_parse_task_sync(
                                 upload_asset.upload_name,
                                 file_handle,
                                 mime_type,
+                                #realpath,
+                                #with original path
+                                #str(upload_asset.path)
                             ),
                         )
                     )
@@ -1034,7 +1037,11 @@ async def download_result_zip(
     return zip_file_path
 
 
-def safe_extract_zip(zip_path: Path, output_dir: Path) -> None:
+def safe_extract_zip(zip_path: Path, output_dir: Path, relative_path:str) -> None:
+    rp :Path = Path(relative_path)
+    pp = rp.parent
+    output_dir = output_dir / pp
+
     output_dir.mkdir(parents=True, exist_ok=True)
     output_root = output_dir.resolve()
 
