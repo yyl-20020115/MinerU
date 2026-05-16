@@ -2347,7 +2347,9 @@ class DocxConverter:
                 "content": [],
                 "ilevel": ilevel,
             }
-            parent_index_block = self.index_block_stack[-1]
+            #MODIFIED: by Yilin
+            if len(self.index_block_stack)>0:
+                parent_index_block = self.index_block_stack[-1]
             parent_index_block["content"].append(child_index_block)
             self.index_block_stack.append(child_index_block)
 

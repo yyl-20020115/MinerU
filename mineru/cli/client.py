@@ -8,6 +8,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Awaitable, Callable, Optional, TextIO
 
+import fnmatch
+
 import click
 import httpx
 import pypdfium2 as pdfium
@@ -496,9 +498,11 @@ def collect_input_documents(
     end_page_id: Optional[int],
 ) -> list[InputDocument]:
     documents: list[Path]
+    patterns = ['*.docx', '*.doc', '*.pdf']
+
     if input_path.is_dir():
         #MODIFIED: by Yilin
-        documents = [path for path in sorted(input_path.rglob("*")) if path.is_file()]
+        documents = [path for path in sorted(input_path.rglob("*")) if (path.is_file() and (str(path.name).endswith(('.doc','.docx','.pdf'))))]
     else:
         documents = [input_path]
     #MODIFIED: by Yilin
@@ -521,7 +525,7 @@ def collect_input_documents(
         else:
             effective_pages = 1
         #MODIFIED: by Yilin
-        print(path,end='\n')
+        print("."+str(path)[len(str(input_path)):],end='\n')
         collected.append(
             InputDocument(
                 path=path,
