@@ -4,7 +4,8 @@
 venv*/
 envs/
 slurm_logs/
-
+done_list.txt
+done_list.txt.old
 sync1.sh
 data_preprocess_pj1
 data-preparation1
