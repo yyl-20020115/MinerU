@@ -938,6 +938,7 @@ async def save_upload_files(upload_dir: str, files: list[UploadFile]) -> list[St
         filename = normalize_upload_filename(original_name)
         normalized_stem = normalize_task_stem(Path(filename).stem)
         destination = build_upload_destination(upload_dir, filename)
+        print(destination)
         try:
             with open(destination, "wb") as handle:
                 while True:
@@ -1001,7 +1002,7 @@ def load_parse_inputs(uploads: list[StoredUpload]) -> tuple[list[str], list[byte
             raise RuntimeError(f"Failed to load file {upload.original_name}: {exc}") from exc
         pdf_file_names.append(upload.stem)
         #pdf_file_names.append(upload.path)
-        print("upload name:", upload.original_name)
+        #print("upload name:", upload.original_name)
 
         pdf_bytes_list.append(pdf_bytes)
     return pdf_file_names, pdf_bytes_list
@@ -1016,7 +1017,7 @@ async def run_parse_job(
     pdf_file_names, pdf_bytes_list = await asyncio.to_thread(load_parse_inputs, uploads)
     actual_lang_list = normalize_lang_list(request_options.lang_list, len(pdf_file_names))
     response_file_names = list(pdf_file_names)
-    print("got pdf file names:", pdf_file_names,end='\n')
+    #print("got pdf file names:", pdf_file_names,end='\n')
 
     parse_kwargs = dict(
         output_dir=output_dir,

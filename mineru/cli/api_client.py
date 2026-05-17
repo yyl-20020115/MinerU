@@ -18,7 +18,7 @@ from contextlib import ExitStack
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 from typing import Callable, Optional, Sequence
-
+import shutil
 import click
 import httpx
 from loguru import logger
@@ -464,7 +464,8 @@ class TaskStatusSnapshot:
 
 class LocalAPIServer:
     def __init__(self, extra_cli_args: Sequence[str] = ()):
-        self.temp_dir = tempfile.TemporaryDirectory(prefix="mineru-api-client-")
+        self.temp_dir = Path("./mineru-api-client-") #tempfile.TemporaryDirectory(prefix="mineru-api-client-")
+        shutil.rmtree(str(self.temp_dir),ignore_errors=True)
         self.temp_root = Path(self.temp_dir.name)
         self.output_root = self.temp_root / "output"
         self.base_url: str | None = None

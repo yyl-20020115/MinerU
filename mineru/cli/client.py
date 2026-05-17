@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Awaitable, Callable, Optional, TextIO
 
 import fnmatch
-
+import shutil
 import click
 import httpx
 import pypdfium2 as pdfium
@@ -491,6 +491,26 @@ def probe_pdf_effective_pages(
         )
     return effective_end_page_id - start_page_id + 1
 
+def get_path_list(fn:str)->list[Path]:
+    if Path(fn).exists():
+        # open file
+        with open(fn, 'r') as file:
+            # 读取所有行并存储在列表中
+            lines = file.readlines()
+        shutil.copyfile(fn,fn+'.old')
+        # delete the file
+        Path(fn).unlink(True)
+
+        # 去除每行末尾的换行符
+        lines = [line.strip() for line in lines]
+        paths = [Path(line) for line in lines]
+        return lines
+    else:
+        return []
+
+def add_to_path_list(fn:str, path:str):
+    with open(fn, 'a') as f:
+        f.write(str(path) + '\n') 
 
 def collect_input_documents(
     input_path: Path,
@@ -499,7 +519,7 @@ def collect_input_documents(
 ) -> list[InputDocument]:
     documents: list[Path]
     patterns = ['*.docx', '*.doc', '*.pdf']
-
+   
     if input_path.is_dir():
         #MODIFIED: by Yilin
         documents = [path for path in sorted(input_path.rglob("*")) if (path.is_file() and (str(path.name).endswith(('.doc','.docx','.pdf'))))]
@@ -509,7 +529,10 @@ def collect_input_documents(
     #print("documents:",end='\n')
     #print(documents,end='\n')
     print('--------------------------------------------------------------------------------',end='\n')
-
+    dones : list[Path] = get_path_list("done_list.txt")
+  
+    count : int = 0
+    total : int = 0
     collected: list[InputDocument] = []
     for order, path in enumerate(documents):
         suffix = guess_suffix_by_path(path)
@@ -524,20 +547,27 @@ def collect_input_documents(
             )
         else:
             effective_pages = 1
-        #MODIFIED: by Yilin
-        print("."+str(path)[len(str(input_path)):],end='\n')
-        collected.append(
-            InputDocument(
-                path=path,
-                relative_path=str(path)[len(str(input_path))+1:],
-                suffix=suffix,
-                stem=path.stem,
-                effective_pages=effective_pages,
-                order=order,
+        relative_path=str(path)[len(str(input_path))+1:]
+        print(relative_path,end='')
+        if relative_path not in dones:
+            collected.append(
+                InputDocument(
+                    path=path,
+                    relative_path=relative_path,
+                    suffix=suffix,
+                    stem=path.stem,
+                    effective_pages=effective_pages,
+                    order=order,
+                )
             )
-        )
+            count = count + 1
+            print(" *")
+        else:
+            print()
+        total = total + 1
+
     print('--------------------------------------------------------------------------------',end='\n')
-    print('Found '+str(len(collected))+' input documents',end='\n')
+    print('Found '+str(total)+' input documents, trying to process '+str(count)+' files.',end='\n')
 
     if not collected:
         raise click.ClickException(f"No supported documents found under {input_path}")
@@ -797,6 +827,7 @@ async def run_planned_task(
             submit_response.task_id,
             queued_ahead=submit_response.queued_ahead,
         )
+    doc = planned_task.documents[0];
     try:
         await wait_for_task_result(
             client=client,
@@ -804,6 +835,9 @@ async def run_planned_task(
             planned_task=planned_task,
             live_renderer=live_renderer,
         )
+    except Exception as e:
+        print("EXCEPTION found for :"+doc.relative_path)
+        print("EXCEPTION is: "+str(e))
     finally:
         if live_renderer is not None:
             live_renderer.remove_task(submit_response.task_id)
@@ -812,8 +846,14 @@ async def run_planned_task(
         submit_response=submit_response,
         planned_task=planned_task,
     )
+
+
     try:
-        safe_extract_zip(zip_path, output_dir, planned_task.documents[0].relative_path)
+        safe_extract_zip(zip_path, output_dir, doc.relative_path)
+        
+        #save document paths into done_list.txt
+        add_to_path_list("done_list.txt",doc.relative_path)
+
     finally:
         zip_path.unlink(missing_ok=True)
     completed_tasks, completed_pages = await mark_task_completed(
@@ -828,6 +868,7 @@ async def run_planned_task(
             completed_pages,
         )
     )
+
     try:
         visualization_jobs = build_visualization_jobs(
             planned_task,
