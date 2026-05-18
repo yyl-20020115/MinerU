@@ -635,7 +635,8 @@ class ReusableLocalAPIServer:
 
 
 def build_http_timeout() -> httpx.Timeout:
-    return httpx.Timeout(connect=10, read=60, write=300, pool=30)
+    #MODIFIED by Yilin
+    return httpx.Timeout(connect=10, read=600, write=300, pool=30)
 
 
 def build_result_download_timeout() -> httpx.Timeout:

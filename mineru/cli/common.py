@@ -655,7 +655,7 @@ def do_parse(
         del pdf_file_names[index]
         del p_lang_list[index]
     if not pdf_bytes_list:
-        logger.warning("No valid PDF or image files to process.")
+        #logger.warning("No valid PDF or image files to process.")
         return
 
     # 预处理PDF字节数据
@@ -748,7 +748,7 @@ async def aio_do_parse(
         del pdf_file_names[index]
         del p_lang_list[index]
     if not pdf_bytes_list:
-        logger.warning("No valid PDF or image files to process.")
+        #logger.warning("No valid PDF or image files to process.")
         return
 
     # 预处理PDF字节数据

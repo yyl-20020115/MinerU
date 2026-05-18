@@ -513,7 +513,8 @@ class DocxConverter:
         self.heading_list_numids = self._detect_heading_list_numids()
         self.pages.append(self.cur_page)
         self._walk_linear(self.docx_obj.element.body)
-        self._add_header_footer(self.docx_obj)
+        #NOTICE: disable this first!
+        #self._add_header_footer(self.docx_obj)
 
     def _reset_index_state(self) -> None:
         """重置目录索引栈，避免相隔的多个目录块被错误合并。"""
@@ -1248,7 +1249,8 @@ class DocxConverter:
                 seen_rel_ids.add(rel_id)
             image_part = get_docx_image_part(image)
             if image_part is None:
-                logger.warning("Warning: image cannot be found")
+                #MODIFIED: by Yilin
+                #logger.warning("Warning: image cannot be found")
                 continue
 
             img_base64 = serialize_office_image(
@@ -2350,7 +2352,7 @@ class DocxConverter:
             #MODIFIED: by Yilin
             if len(self.index_block_stack)>0:
                 parent_index_block = self.index_block_stack[-1]
-            parent_index_block["content"].append(child_index_block)
+                parent_index_block["content"].append(child_index_block)
             self.index_block_stack.append(child_index_block)
 
             index_item = {

@@ -158,10 +158,10 @@ def serialize_vector_part_with_placeholder(
     size: tuple[int, int] = (320, 180),
 ) -> str:
     image_format = _vector_image_format_label(part_name, content_type)
-    logger.warning(
-        f"Skipping {image_format} image part before Pillow load, "
-        f"part_name={part_name}, content_type={content_type}"
-    )
+    #logger.warning(
+    #    f"Skipping {image_format} image part before Pillow load, "
+    #    f"part_name={part_name}, content_type={content_type}"
+    #)
     placeholder = create_text_placeholder(
         size,
         [

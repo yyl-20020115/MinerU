@@ -499,7 +499,7 @@ def get_path_list(fn:str)->list[Path]:
             lines = file.readlines()
         shutil.copyfile(fn,fn+'.old')
         # delete the file
-        Path(fn).unlink(True)
+        #Path(fn).unlink(True)
 
         # 去除每行末尾的换行符
         lines = [line.strip() for line in lines]
