@@ -570,7 +570,7 @@ def collect_input_documents(
     print('Found '+str(total)+' input documents, trying to process '+str(count)+' files.',end='\n')
 
     if not collected:
-        raise click.ClickException(f"No supported documents found under {input_path}")
+        raise click.ClickException(f"No supported documents found under {input_path} or all documents are processed.")
 
     normalized_stems, renamed_stems = uniquify_task_stems(
         [document.stem for document in collected]
